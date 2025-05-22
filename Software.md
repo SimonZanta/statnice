@@ -151,5 +151,211 @@
 	* up vector = určuju kde je směr nahoru
 * každý frame se v zobrazovacím řetězci násobí tato matice s projekční maticí a maticí světa
 	* díky tomu je možné s kamerou hýbat
-	* 
  
+# Rasterizace
+
+* probíhá  skoro na konci a jedná se o vykreslení scény na obrazovku/canvas (**raster)
+	* jedná se o převod vektorové reprezentace do rasteru
+	* raster se skládá z pixelů, to jsou uniformní části rasteru
+	* raster se dá reprezentovat jako matice
+		* v každé "buňce" je obsažena hodnota, která reprezentuje barvu
+		
+* ### ukládání rasteru do různých formátů
+	* rasterové
+		* jpeg
+		* png
+		* bip
+	* vektorové
+		* svg
+		
+* ### základní grafické entity
+	* bod
+	* úsečka
+	* trojůhelník
+	
+* ### algoritmy pro jejich vykreslení
+	* bresenhammův algoritmus (úsečka, kružnice)
+		* určí se bod A a B, kde A je vždy víc vlevo
+		* při každém kroku se rozhoduje jestli se příští pixel vykreslí nahoru, dolů nebo směrem doprava
+	* DDA
+		* starší jak bresenhamm algoritmus
+		* pro výpočet se používá rovnice y = kx + q
+		
+* ### Obrazově orientované algoritmy výplně
+	* hranice výplně určují hranice objektu (povětšinou změna barvy)
+	* flood fill
+		* rekurzivní vyplňování
+		* rekurzivně se vyplní vedlejší pixely
+			* počet sousedních pixelů se určí podle druhu
+		* hlavní nevýhoda je možnost buffer-overflow při nesprávném ukončení rekurze
+		* dva druhy
+			* čtyř sousední
+			* osmi sousední
+* ### Objektově orientované algoritmy výplně
+	* scan line
+		* jeden z nejznámějších
+		* výplň probíhá po řádcích
+		* vcelku jednoduchý algoritmus
+			* výplň začíná poté co algoritmus přejede první "line"
+			* výplň končí na následující line
+			* ...
+			* výplň opět začíná na následující line
+			* algoritmus se tahle opakuje pro každý line
+		* je třeba vyřešit problém s vrcholy, které by špatně mohly vyplnit řádek
+# Zobrazení prostorové scény
+* vizualizační řetězec
+	* transformace objektů do MVP
+	* projekce do 2D prostoru
+	* řešení Z-bufffer
+	* stínování a osvětlení
+	* finální render
+* ## řešení viditelnosti
+	* malířův algoritmus
+		* funguje na principu seřazení podle vzdálenosti od kamery
+		* následovně se objekty vykreslují od nejvzdálenějšího k nejbližšího
+			* ty se postupně překreslují
+	* Z-Buffer
+		* moderní přístup pro výpočet viditelnosti
+		* využívá bufferu, tedy matice o stejné velikosti jako raster
+		* do tohohle bufferu se zapisují vždy nové fragmenty, pokud je blíže
+* ## výpočet osvětlení
+	* má za úkol vypočítat barvu a intenzitu barvy v daném pixelu na závislosti pozice kamery nebo světla
+	* výpočet světla je proveden na základě
+		* pozice a typu světla
+		* materiálu 
+		* normály povrchu
+		* pozice kamery
+	* Phong light model
+		* skládá se ze tří složek
+			* ambientního osvětlení
+				* ambience scény
+					* aby scéna nebyla jenom černá
+			* difůzní složky
+				* určuje směr světla
+			* spekulární složky
+				* určuje odlesk 
+		* výsledná barva se vypočítá součtem těchto složek
+* ## vertex a index buffer
+	* nejpodstatnější buffery v moderním vývoji
+	* vertex buffer uchovává vlastnosti jednotlivých vertexů
+	* index buffer uchovává propojení vertexů ve vertex bufferu
+		* pomocí tohohle bufferu se spojují vertexy v model
+* ## zobrazovací řetězec
+	scéna
+		↓
+	MVP
+		↓
+	clipping
+		↓
+	rasterizace trojůhelníků
+		↓
+	fragment shader
+		↓
+	různé testy
+		↓
+	rasterizace
+
+## optimalizace
+* view frostum culling
+	* nevyobrazení objektů mimo zobrazovací kužel kamery
+* back face culling
+	* nevyobrazení stran objektů, které nejsou viditelné
+* occlusion culling
+	* nevyobrazení objektů, které jsou zakryty dalšími objekty
+* LOD
+	* vytváření různé varianty modelů a jejich vyobrazení na základě vzdálenosti
+* instancování 
+	* renderování stejných objektů najednou jenom s jinou transformací
+
+* ## moderní přístup
+	 * dřív byl tzv fixní přístup
+		 * ten využíval imperativního přístupu
+		 * postupně se definovaly postupy a ty se taky prováděly
+		 * dnešní přístup využívá shadery, které propočítávají většinu složitějších výpočtů
+	 *  zobrazovací řetězec
+		 * vertex shader
+		 * tessalace (optional)
+		 * geometry shader (optional)
+		 * rasterizace
+		 * fragment shader
+		 * různé testy
+## typy shaderů
+| shader          | vlastnost                                     |
+| --------------- | --------------------------------------------- |
+| Vertex Shader   | transformace vrcholů                          |
+| Fragment Shader | výpočet barvy fragmentu , osvětlení atd.      |
+| Geometry shader | generování nových vertexů nebo nové goemterie |
+| Compute shader  | využívané pro různé negrafické výpočty        |
+
+## grafické knihovny 
+*  vznikly aby se předešlo vniku zbytečného boiler plate kódu
+* knihovny pro desktop použití
+	* OpenGL - v dnešní době méně využívaný
+	* Vulkan - openSource platforma, v dnešní době nejvíc využívaná
+	* DirectX - platforma vytvořená MS, alternativa k vulkanu
+* knihovny pro webové platformy
+	* Three.js
+	* WebGL
+	* babylon.js
+# Obrazová data
+* využití zejména při převodu dat např ze snímače fotoaparátu
+## Sampling
+* vybírání hodnot ze spojitého signalu v pravidelných intervalech
+* čím jemnější je sampling, tím je obraz více pixelovaný
+		* a tedy i míň aliasovaný
+## Kvantování
+* používá se pro zaokrouhlení hodnot do konečného počtu úrovní 
+* např. barvy na obrazovce můžou mít jenom konečný počet barev
+## alias a anti-alias
+* alias je viditelná hrana objektu
+* anti-aliasing metody jsou metody které se pomocí vytváření barevného přechodu snaží zbavit viditelné hrany
+	* SSAA
+	* MSAA
+	* TAA
+	* FXAA
+## předzpracování obrazu
+* techniky které upravují obraz tak aby byl v určitém stylu
+* např nastavením filteru, odstraněním šumu, normalizace osvětlení, změna rozlišení
+
+### filtrace  obrazu
+
+| Metoda               | Účel                                                  |
+| -------------------- | ----------------------------------------------------- |
+| Gaussovské rozmazání | Vyhlazení, odstranění šumu                            |
+| Mediánový filtr      | nahrazení pixelu pomocí mediánu okolních pixelů       |
+| průměrovací filtr    | podobný jako medián, jenom jednodušší ale méně přesný |
+### intenzita světla
+
+| Metoda                  | Účel                              |
+| ----------------------- | --------------------------------- |
+| Histogramová equalizace | Zlepšení kontrastu                |
+| normalizace             | převod rozsahu pixelů na interval |
+### edge detection + prahování
+
+| Metoda                   | Účel                     |
+| ------------------------ | ------------------------ |
+| Sobel/Canny detekce hran | Zvýraznění kontur a hran |
+| Prahování                | Segmentace objektů       |
+## interpolace
+* matematický výpočet jak získat přibližnou hodnotu mezi dvěma dalšími hodnotami
+* vzorec
+```
+y(x) = y0 + (x-x0)*((y1-y0)/(x1-x0))
+```
+## histogram
+* diagram který ukazuje na četnost různých hodnot v obraze
+* pomocí tohoto diagramu je možné zjistit čeho je obrazu moc a poupravit to
+	* tím je myšleno např. kontrast nebo intenzita jednotlivých barev
+## segmentace a klasifikace obrazu
+* používá se v rámci počítačového vidění
+* Segmentace slouží k rozdělení obrazu na jednotlivé části (objekty atp.)
+* Klasifikace potom ohodnotí jednotlivé segmenty
+## komprese
+* umožňuje zmenšit velikost výsledného obrázku
+* dvě kategorie
+	* ztrátová
+		* nějaké informace zmizí
+		* JPEG, WEP
+	* bezztrátová
+		* není ztráta informace
+		* PNG, GIF
