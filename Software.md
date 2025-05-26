@@ -359,3 +359,291 @@ y(x) = y0 + (x-x0)*((y1-y0)/(x1-x0))
 	* bezztrátová
 		* není ztráta informace
 		* PNG, GIF
+# Webové aplikace
+## architektura
+- jde o to jak je aplikace vnitřně poskládaná
+	- komunikace mezi frontendem a backendem
+	- databáze
+	- zabezpečení
+	- škálovatelnost
+	- ...
+- je třeba aby architektura byla dobře navrhnutá už od začátku
+	- to zajistí že vývoj bude připraven na víc překážek
+## komunikace mezi FE a BE
+* FE je část aplikace která slouží zejména k tomu aby s ní interagoval uživatel, či aby pomocí ní získal požadovaná data
+* BE je naopak část aplikace která zaznamenává či vydává zmíněná data pro frontend
+	* také řeší zabezpečení, optimalizace načítání atd.
+* FE a BE spolu komunikují zejména pomocí různých API či WebSocketů 
+## požadavky a routování
+* požadavky jsou vysílány z FE na BE
+* mají různé flagy, které ovlivňují typ požadavku a to jestli obsahují data nebo ne
+	* GET
+		* požaduje od serveru na základě parametrů v url nějaká data
+		* server pošle data
+	* POST
+		* posílá na server nějaká data zabalená v body parametru
+	* DELETE
+		* posílá požadavek na smazání nějakého záznamu
+		* povětšinou obsahuje ID
+	* PUT
+		* úprava nějakého již vytvořeného záznamu
+## routování se provádí pomocí vytvoření funkcí na BE
+- tyhle funkce obsahují jednotlivé typy požadavků
+	- následovně když se pošle požadavek na BE, je možné ověřit jestli funkce existuje a případně vrátit chybu pokud ne
+## asynchronní model zpracování transakcí 
+* poté co FE pošle požadavek na BE je nutné tento požadavek zaobalit do asynchronní funkce, která čeká na to než se ze serveru vrátí odpověď
+* je nutné to dělat jelikož každý požadavek je jinak dlouhý a touto asynchronností se zajistí to že se vždy počká na vykonaní
+* k tomu se používá nejčastěji JS async/await funkce
+## Správa stavu ve webových aplikacích 
+* stav se řeší povětšinou u komplexnějších aplikací
+* jeho správa je závislá na volbě frameworku
+	* Angular
+		* řeší stav hlavně na úrovni komponent, je možné vytvořit service pro globální správu
+	* React
+		* stav se povětšinou řeší hlavně globálně, nicméně je možné ho uchovávat i v rámci komponent
+## autentizace a autorizace
+|Termín|Co to je|Přirovnání|
+|---|---|---|
+|**Autentizace**|Ověření **kdo jsi**|Kontrola tvé **identity / přihlášení**|
+|**Autorizace**|Ověření, zda **máš oprávnění**|Kontrola **co můžeš dělat**|
+## Zabezpečení
+- je nutné využívat zabezpečení aby uživatelé nebo útočníci nebyli schopni narušit chod aplikace
+- pro hodnocení nebezpečí se využívá openSource OWASP seznam
+	- SQL Injection
+		- vložení SQL kódu do inputu na FE a ten se pak vykoná na BE
+	- XSS
+		- vložení scriptu do stránky
+	- CSRF
+		- poslání požadavku pod jménem jiného uživatelé
+	- ...
+- pro zabezpečení je vhodné
+	- validovat vstupy
+	- aktualizovat knihovny
+	- zapnout CORS
+	- ochrana také na BE
+	- případné cybersecurity testy 
+## testování
+- FE a BE je možné testovat
+- testy mají zajistit že jednotlivé části aplikace fungují
+- testy mají byt co nejvíc jasné, aby bylo možné zjistit jestli test prošel správně
+- typy testů
+	- E2E
+		- větší testy
+	- Unit
+		- menší, víc specifické testy
+	- Component
+		- podobné jako unit, jenom pro FE komponenty
+	- Smoke
+		- nejméně přesné, nejvíc obecné
+# Inversion of Control (IoC)
+- ve své podstatě jde o to že se aplikace neřídí sama
+	- je řízená pomocí frameworku
+- to má za výhodu
+	- nižší počet závislostí
+	- jednodušší testování
+- DI
+	- konkrétní implementace IoC
+	- injecting závislostí pomocí 
+		- konstrukturu
+		- setter
+		- inject metody
+- vztah IoC a DI
+	- IoC je způsob řízení zvenku
+	- DI je implementace IoC
+# RESTful webové služby a mikroslužby
+- způsob jak spolu aplikace komunikují po webu
+- povětšinou pomocí HTTP
+- základní vlastnosti
+	- modulární - je možné je samostatně využívat
+	- neopakované - aby nebylo několik stejných api
+	- dostatečně abstraktní - možnost znovupoužít v dalších částech aplikace
+## REST
+- asi nejpoužívanější webová služba
+- je stateless
+	- server si nepamatuje stavy mezi požadavky
+- response je ve formátu JSON
+- velice jednoduchý a rychlý
+- využívá HTTP metody
+	- GET
+	- POST
+	- PUT
+	- DELETE
+	- ...
+- využívá CRUD operace
+	- CREATE
+	- READ
+	- UPDATE
+	- DELETE
+## SOAP
+- formálnější a víc normalizovaný přístup
+	- používáno v Enterprise aplikacích
+- používá XML místo JSON
+- pro komunikaci používá WDSL nebo UUID
+- má prostředky pro lepší zabezpečení zpráv
+	- víc advanced datové typy
+- je možné ho spustit nad více protokoly
+	- HTTP, SMTP ...
+- obecně více složitý na práci
+	- to má ale výhodu v
+		- větší zabezpečení
+		- šifrování
+		- digitální podpisy
+		- ...
+## microservice
+- každá služba v aplikaci je samostatná 
+	- je tedy možné ji nasadit kamkoliv jinam
+- každá z nich má vlastní databázi
+- reprezentují jednotlivé funkční části
+	- payment sevice
+	- user service
+- díky tomu je 
+	- jednodušší škálovatelnost
+	- nezávislá spolupráce teamů
+	- jednodušší údržba
+- zároveň ale
+	- je třeba devOps
+		- díky tomu kubernetes... 
+	- vyšší složitost architektury
+		- vyšší cena
+# Architektonické a návrhové vzory
+## SOA
+- servisově orientovaná architektura
+- aplikace je rozdělená do servis podle použití
+	- service na uživatele, platby...
+- umožňuje jednodušší správu autentizace
+	- stačí se jednou přihlásit a na základě toho se udělí přístup do aplikace
+- výhody
+	- jednodušší znovupoužitelnost services
+	- jednodušší codebase
+		- lepší orientace
+	- jednodušší scaling aplikace
+## MVC
+- model view controller
+- model
+	- obsahuje operace jako
+		- logika
+		- výpočty
+		- databázové dotazy
+		- validace
+		- ...
+	- podobné jako BE
+	- ve své podstatě neví model odkud se funkce spustila
+		- není tedy závislá na URL
+	- je s ním možné použít ORM
+		- v podstatě DJANGO
+- view
+	- reprezentace FE
+	- vytváří vizuál pro uživatele
+	- zápis normálně podle HTML + proměnné 
+- controller
+	- prostředník mezi modelem a view
+	- má z úkol dostávat data / výpočty z modelu do view
+## MVP
+- stejný jako MVC, až na poslední
+- presenter
+	- ten je podobný jako controller
+	- stejně jako controller vrací nějak naformátovaná data
+		- na rozdíl od controlleru však rozhoduje i o tom co se bude dít s interakcí uživatele ve View
+## MVT
+- podobné MVC
+- nicméně jsou dvě rozdílné vlastnosti
+	- View
+		- v tomto případě se chová spíše jako controller
+		- tedy zpracovává a posílá požadavky
+	- Template
+		- slouží k zobrazení dat pomocí template
+			- speciální soubor podobný HTML 
+			- umožňuje však např
+				- psát proměnné do html
+				- psát různé kondice, loopy apod.
+				- ...
+## MVVM
+- podobné MVC
+- hlavně u FE frameworků
+- view
+	- opět čistě pro pohled na daty
+- viewModel
+	- slouží k získávání dat a správě logiky
+	- pokud se něco změní ve viewModelu je automaticky změněn i view (two-way-binding)
+## observer
+- slouží k observování (pozorování) změn v
+	- proměnné
+	- requestu
+	- ...
+- tyhle změny pak automaticky upozorní odběratele (subscriber)
+- s novými daty je pak různě nakládáno
+# Datové struktury
+- reprezentují řazení ukládání dat do paměti
+## Array
+- tzv pole
+	- jedná se o úplně nejzákladnější datovou strukturu
+	- jde o uspořádání dat do matice
+		- základní array je o velikosti 1 x X
+		- může být do velikosti X x Y
+	- v jazycích jako je např Java
+		- se vyskytuje jak pevná array
+			- je tedy nutné předem definovat velikost, tato velikost se následovně vyhradí v paměti
+	- naopak v jazyce JS
+		- je array tzv. dynamická
+			- nedefinuje se tedy předem velikost a je možné ukládat libovolný počet dat
+	- přístup je pomocí indexu
+		- tedy čísla pozice v pomyslné matici
+		- rychlost O(1)
+	- data je možné přidávat na 
+		- konec
+		- začátek
+		- libovolný index
+			- stávající data se na daném indexu přepíší
+			- rychlost O(n) - uprostřed
+## seznam (list)
+- datová struktura kde každý node (jednotka)
+	- v standartním listu
+		- odkaz na následující node
+	- v obousměrném listu
+		- odkaz na následující  node
+- je možné mazat nebo vkládat prvek na jakoukoliv pozici
+- nicméně je pomalý v přístupu podle indexu
+	- lepší je přístup pomocí hledání
+## zásobník (stack)
+- poslední dovnitř, první ven
+- použití například pro undo operace
+## fronta (queue)
+- první dovnitř, první ven
+## set 
+ - struktura která obsahuje jenom unikátní hodnoty
+## map
+- ukládá hodnoty klíč - hodnota
+- je možné hledat podle indexu nebo podle klíče
+	- přístup přes klíč O(1)
+# sortovací algoritmy
+## bubble sort    
+- jeden z nejjednodušších sortovacích algoritmů
+- v podstatě jde o to že se vždy porovnávají dvě čísla
+	- pokud je nalevo větší než napravo
+		- prohodí se
+	- tímto způsobem se v každé iteraci na konci objeví další největší číslo
+- https://www.youtube.com/watch?v=xli_FI7CuzA
+## insertion sort
+- koukneme se na levý prvek aktuálního prvku
+	- pokud je větší prohodíme je
+	- takto prohazujeme do té doby dokud není prvek ve správném místě,
+	- každý projetý prvek označíme jako seřazený
+	- na konci by jsme měli mít seřazeno
+- https://www.youtube.com/watch?v=JU767SDMDvA
+## Selection sort
+- začínáme opět zleva
+- vybereme aktuální minimum
+	- to je vždy první neseřazený prvek zleva
+- projedeme celou array
+	- do té doby dokud nenajdeme číslo menší než aktuální
+	- poté je prohodíme
+	- tento element označíme jako seřazený
+- takhle cyklujeme dokud není seřazeno
+https://www.youtube.com/watch?v=g-PGLbMth_g
+## merge sort
+- rekurzivní algoritmus
+- v prvním kroku rekurzivně rozdělíme array na jednotlivé položky
+- v druhém kroku každé dvě položky seřadíme a sloučíme
+- v dalším kroku spojíme každé dvě seřazené array a sloučíme
+	- takhle pokračujeme dokud nám nezbyde jedna seřazená array
+- https://www.youtube.com/watch?v=4VqmGXwpLqc
