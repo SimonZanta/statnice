@@ -1,4 +1,3 @@
-
 # 1. Funkcionální programování
 
 ##  Programovací paradigmata
