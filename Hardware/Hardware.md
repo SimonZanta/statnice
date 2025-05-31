@@ -999,3 +999,61 @@ U = I ⋅ R
 		- session storage
 		- local storage
 ....
+# objektové modelování
+## účel
+- účelem je pochopení návrhu systému před jeho implementaci
+- pomáhá
+	- komunikovat
+	- snížit chybovost
+	- zjednodušit údržbu
+	- převést realitu na sw
+## základní pojmy
+- třída 
+	- předpis / šablona pro to co má pak objekt dělat
+		- implementace metod, funkcí, proměnných apod.
+- Objekt
+	- instance třídy v kódu
+## [principy OOP](#%20principy%20objektového%20programování)
+
+## analytický vs návrhový model
+- analytický model
+	- zachycení reality
+	- zachycuje co systém má umět
+		- ne jak se to implementuje
+- návrhový model
+	- návrh implementace
+		- třídy
+		- dědičnost
+		- atributy
+		- ....
+## UML
+- unified modelling language
+- standardizovaný jazyk pro návrh sw systémů
+- pět různých "příchutí"
+	- logické
+		- nejvíc zastoupené
+		- modelování tříd, funkcí apod.
+		- jejich vzájemné propojení
+	- procesní
+		- má počáteční a koncový bod
+		- v podstatě ukazuje jak probíhají jednotlivé procesy v aplikaci
+		- např přihlášení, platba apod.
+	- vývojové
+		- propojení komponent, modulů a podobných vývojových struktur
+	- fyzické
+		- jak je systém nasazen na HW
+	- use case
+		- standardizované zapsání požadavků zákazníka 
+		- ukazuje hlavní use case aplikace
+		- je nejvíc obecný
+## vztahy
+- asociace
+	- vztah mezi dvěma třídami
+- generalizace
+	- dědičnost
+- agregace
+	- slabá forma vlastnictví
+		- celek může fungovat bez části
+- kompozice
+	- silná forma vlastnictví
+		- celek nemůže fungovat bez části
